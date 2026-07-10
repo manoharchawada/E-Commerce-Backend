@@ -246,7 +246,6 @@ npm test
 - [ ] Phase 3: Checkout, payments & seller-split orders
 - [ ] Phase 4: Reviews, coupons, admin analytics, tests
 
-
 ---
 
 ## 🙋 Author
