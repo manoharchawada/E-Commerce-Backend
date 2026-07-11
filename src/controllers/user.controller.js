@@ -8,6 +8,9 @@ import {
 import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { generateOtp, otpExpiry, sendMail } from "../constants.js";
+import welcomeEmail from "../templates/auth/welcome.js";
+import verifyEmailTemplate from "../templates/auth/verifyEmailTemplate.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -68,6 +71,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!avatar) {
       throw new ApiError(500, "Internal Server Error while uploading avatar");
     }
+    const otp = await generateOtp();
     const user = await User.create({
       fullName,
       username: username.toLowerCase(),
@@ -76,6 +80,8 @@ const registerUser = asyncHandler(async (req, res) => {
       avatar: avatar?.url || "",
       phone,
       role,
+      otp,
+      otpExpiry: otpExpiry,
     });
     const createdUser = await User.findById(user._id).select(
       "-password -refreshToken"
@@ -83,6 +89,16 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!createdUser) {
       throw new ApiError(500, "Internal Server Error while creating the user");
     }
+    await sendMail({
+      to: user.email,
+      subject: "Welcome to MarketPlace 🎉",
+      html: welcomeEmail({ name: user.name }),
+    }).catch((err) => console.error("Welcome email failed:", err));
+    sendMail({
+      to: user.email,
+      subject: "Verify your email address",
+      html: verifyEmailTemplate({ name: user.fullName, otp }),
+    }).catch((err) => console.error("Verification email failed:", err));
     res
       .status(201)
       .json(new ApiResponse(201, createdUser, "User created successfully"));
@@ -581,6 +597,62 @@ const getWatchHistory = asyncHandler(async (req, res) => {
       )
     );
 });
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "Email and OTP are required"));
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found"));
+    }
+
+    if (user.isEmailVerified) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Email already verified"));
+    }
+
+    if (!user.otp || !user.otpExpiry || user.otpExpiry < Date.now()) {
+      return res
+        .status(400)
+        .json(
+          new ApiError(
+            400,
+            "OTP expired or not found. Please request a new one"
+          )
+        );
+    }
+
+    if (otp !== user.otp) {
+      return res.status(400).json(new ApiError(400, "Invalid OTP"));
+    }
+
+    user.isEmailVerified = true;
+    user.otp = null;
+    user.otpExpiry = null;
+    await user.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Email verified successfully"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(
+        new ApiError(
+          500,
+          error?.message || "Internal server error while verifying email"
+        )
+      );
+  }
+});
 export {
   registerUser,
   loginUser,
@@ -593,4 +665,5 @@ export {
   updateUserAvatar,
   updateCoverImage,
   getUserChannelProfile,
+  verifyEmail,
 };

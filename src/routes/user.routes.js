@@ -10,6 +10,7 @@ import {
   // updateCoverImage,
   updateUser,
   updateUserAvatar,
+  verifyEmail,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -26,6 +27,7 @@ router.route("/update-profile").patch(verifyJWT, updateUser);
 router
   .route("/update-avatar")
   .put(upload.single("avatar"), verifyJWT, updateUserAvatar);
+router.route("/verify-email").post(verifyEmail);
 // router
 //   .route("/update-cover-image")
 //   .put(upload.single("coverImage"), verifyJWT, updateCoverImage);

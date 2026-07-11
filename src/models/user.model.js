@@ -34,9 +34,17 @@ const userSchema = new Schema(
       required: true,
     },
     isEmailVerified: { type: Boolean, default: false },
-    refreshToken: { type: String, select: true },
+    refreshToken: { type: String },
     deletedAt: {
       type: String,
+      default: null,
+    },
+    otp: {
+      type: String,
+      default: "",
+    },
+    otpExpiry: {
+      type: Date,
       default: null,
     },
   },
