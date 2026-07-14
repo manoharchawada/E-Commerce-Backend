@@ -2,7 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const sellerSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
     businessName: { type: String, required: true },
     gstNumber: { type: String, default: "" },
     pickupAddress: {
@@ -16,7 +21,10 @@ const sellerSchema = new Schema(
       accountNumber: String,
       ifsc: String,
     },
-    rating: { type: Number, default: 0 },
+    rating: {
+      type: Number,
+      default: 0,
+    },
     totalRatings: { type: Number, default: 0 },
     status: {
       type: String,

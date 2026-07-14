@@ -14,10 +14,21 @@ import {
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validateMiddleware } from "../middlewares/validate.middleware.js";
+import {
+  registerUserValidator,
+  userLoginValidator,
+} from "../validators/auth.validator.js";
 const router = Router();
 
-router.route("/register").post(upload.single("avatar"), registerUser);
-router.route("/login").post(loginUser);
+router
+  .route("/register")
+  .post(
+    upload.single("avatar"),
+    validateMiddleware(registerUserValidator),
+    registerUser
+  );
+router.route("/login").post(validateMiddleware(userLoginValidator), loginUser);
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/deleteUser").post(verifyJWT, deleteUser);
 router.route("/refresh-token").post(refreshAccessToken);
