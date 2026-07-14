@@ -36,7 +36,7 @@ A production-grade, multi-seller e-commerce backend built with **Node.js**, **Ex
 | Cache / Rate limiting | Redis |
 | Payments | Stripe |
 | File storage | Cloudinary |
-| Validation | Zod |
+| Validation | Joi |
 | Testing | Jest + Supertest |
 
 ---
@@ -52,7 +52,7 @@ e-commerce-backend/
 │   ├── routes/          # Express routers
 │   ├── middlewares/     # Auth, error handling, rate limiting, validation
 │   ├── services/        # Business logic (checkout, stock, payments)
-│   ├── validators/      # Zod request schemas
+│   ├── validators/      # Joi
 │   ├── utils/           # ApiError, ApiResponse, asyncHandler, helpers
 │   ├── jobs/            # Cron/background jobs
 │   └── app.js
