@@ -30,8 +30,11 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 import sellerRouter from "./routes/seller.routes.js";
 import categoryRouter from "./routes/category.routes.js";
+import productRouter from "./routes/product.routes.js";
 // // router declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/seller", sellerRouter);
 app.use("/api/v1/category", categoryRouter);
+app.use("/api/v1/product", productRouter);
 export { app };
+
